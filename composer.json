@@ -21,7 +21,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Stagem\\ZfcSystem\\": "src/"
+      "Stagem\\ZfcSystem\\Config\\": "src/"
     }
   },
   "extra": {
