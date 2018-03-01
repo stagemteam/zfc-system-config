@@ -10,6 +10,7 @@ namespace StagemTest\ZfcSystem\Config;
 
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery;
+use Stagem\ZfcSystem\Config\Model\Repository\ConfigRepository;
 use Stagem\ZfcSystem\Config\SysConfig;
 
 class SysConfigTest extends MockeryTestCase
@@ -19,12 +20,16 @@ class SysConfigTest extends MockeryTestCase
 
     public function setUp()
     {
-        $this->sysConfig = Mockery::mock(SysConfig::class);
+        $this->repositoryMock = Mockery::mock(ConfigRepository::class);
+        //$repositoryMock->shouldReceive('getClassName')->once()
+        //    ->andReturn(CheckoutBooking::class);
+
+        $this->sysConfig = new SysConfig($this->repositoryMock);
     }
 
     public function testGetConfigShouldReturnCorrectValueByPath()
     {
-        $this->sysConfig->allows()->fetchConfig()->andReturns([
+        $this->repositoryMock->allows()->findConfig()->andReturns([
             ['id' => 1, 'scope' => 'default', 'path' => 'default/head/title', 'value' => 'Test Title'],
             ['id' => 2, 'scope' => 'default', 'path' => 'default/banner/active', 'value' => '1'],
         ]);
