@@ -1,0 +1,27 @@
+{
+  "name": "stagem/zfc-system-config",
+  "description": "ZF System Configuration Module",
+  "type": "zf-module",
+  "license": "MIT",
+  "keywords": [
+    "zf2",
+    "zf3",
+    "zf-expressive",
+    "config"
+  ],
+  "authors": [
+    {
+      "name": "Serhii Popov",
+      "email": "popow.serhii@gmail.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": ">=5.6 || >=7.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Stagem\\ZfcSystem\\": "src/"
+    }
+  }
+}
