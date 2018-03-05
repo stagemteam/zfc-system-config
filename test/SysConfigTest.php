@@ -10,6 +10,7 @@ namespace StagemTest\ZfcSystem\Config;
 
 use Mockery\Adapter\Phpunit\MockeryTestCase;
 use Mockery;
+use ReflectionProperty;
 use Stagem\ZfcSystem\Config\Model\Repository\ConfigRepository;
 use Stagem\ZfcSystem\Config\SysConfig;
 
@@ -18,11 +19,12 @@ class SysConfigTest extends MockeryTestCase
     /** @var SysConfig */
     protected $sysConfig;
 
+    /** @var ConfigRepository */
+    protected $repositoryMock;
+
     public function setUp()
     {
         $this->repositoryMock = Mockery::mock(ConfigRepository::class);
-        //$repositoryMock->shouldReceive('getClassName')->once()
-        //    ->andReturn(CheckoutBooking::class);
 
         $this->sysConfig = new SysConfig($this->repositoryMock);
     }
@@ -35,6 +37,20 @@ class SysConfigTest extends MockeryTestCase
         ]);
 
         $value = $this->sysConfig->getConfig('default/head/title');
-        //$this->assertEquals('Test Title', $value);
+        $this->assertEquals('Test Title', $value);
+    }
+
+    public function testShouldCallNormalizeOnlyOnce()
+    {
+        $sysConfigMock = Mockery::mock(SysConfig::class . '[normalize]', [$this->repositoryMock]);
+
+        $sysConfigMock->allows()->normalize()->once();
+
+        $reflection = new ReflectionProperty($sysConfigMock, 'isNormalized');
+        $reflection->setAccessible(true);
+
+        $sysConfigMock->getConfig('default/head/title');
+        $reflection->setValue($sysConfigMock, true);
+        $sysConfigMock->getConfig('default/banner/active');
     }
 }

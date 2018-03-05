@@ -18,34 +18,31 @@ namespace Stagem\ZfcSystem\Config\Model\Repository;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\NativeQuery;
+use Doctrine\ORM\Query\ResultSetMappingBuilder;
 
 class ConfigRepository extends EntityRepository
 {
     protected $table = 'config_data';
     protected $alias = 'config';
 
-    /**
-     * @return NativeQuery
-     */
     public function findConfig()
     {
-        $rsm = new ResultSetMapping();
+        $rsm = new ResultSetMappingBuilder($this->_em);
 
-        $rsm->addEntityResult($this->getEntityName(), $this->alias);
-        $rsm->addFieldResult($this->alias, 'id', 'id');
-        $rsm->addFieldResult($this->alias, 'scope', 'scope');
-        $rsm->addFieldResult($this->alias, 'path', 'path');
-        $rsm->addFieldResult($this->alias, 'value', 'value');
+        $rsm->addScalarResult('id', 'id', 'integer'); // select name -> field name
+        $rsm->addScalarResult('scope', 'scope');
+        $rsm->addScalarResult('path', 'path');
+        $rsm->addScalarResult('value', 'value');
 
-        $query = $this->_em->createNativeQuery(
-            "SELECT {$this->alias}.`id`, {$this->alias}.`scope`, {$this->alias}.`path`, {$this->alias}.`value`
-			FROM `{$this->table}` {$this->alias}",
-            $rsm
-        );
+        $sql = <<<SQL
+SELECT {$this->alias}.`id`, {$this->alias}.`scope`, {$this->alias}.`path`, {$this->alias}.`value` FROM `{$this->table}` {$this->alias}
+SQL;
 
-        //$query = $this->setParametersByArray($query, [$target, $entityId, $type]);
+        $query = $this->_em->createNativeQuery($sql, $rsm);
+        //$query->setParameters($conditions);
+        $result = $query->getResult();
 
-        return $query->getResult();
-        //return $query;
+        return $result;
+
     }
 }

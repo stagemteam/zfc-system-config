@@ -5,8 +5,17 @@ namespace Stagem\ZfcSystem\Config;
 return [
     'dependencies' => [
         'factories' => [
-            //Page\ConnectivePage::class => Page\ConnectivePageFactory::class,
+            SysConfig::class => Factory\SysConfigFactory::class,
         ],
+    ],
+
+    'view_helpers' => [
+        'aliases' => [
+            'sysConfig' => View\Helper\SysConfigHelper::class,
+        ],
+        /*'invokables' => [
+            View\Helper\SysConfigHelper::class => View\Helper\SysConfigHelper::class,
+        ],*/
     ],
 
     // Doctrine config

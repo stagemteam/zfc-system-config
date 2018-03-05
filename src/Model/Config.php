@@ -5,6 +5,8 @@ namespace Stagem\ZfcSystem\Config\Model;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * This class create only for compatibility with migrations and doesn't use in real system.
+ *
  * @ORM\Entity(repositoryClass="Stagem\ZfcSystem\Config\Model\Repository\ConfigRepository")
  * @ORM\Table(name="config_data")
  */
