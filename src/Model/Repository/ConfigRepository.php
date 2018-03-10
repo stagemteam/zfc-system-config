@@ -25,7 +25,8 @@ class ConfigRepository extends EntityRepository
     protected $table = 'config_data';
     protected $alias = 'config';
 
-    public function findConfig()
+    //public function findConfig($filters = [])
+    public function findConfig($path = null)
     {
         $rsm = new ResultSetMappingBuilder($this->_em);
 
@@ -38,11 +39,17 @@ class ConfigRepository extends EntityRepository
 SELECT {$this->alias}.`id`, {$this->alias}.`scope`, {$this->alias}.`path`, {$this->alias}.`value` FROM `{$this->table}` {$this->alias}
 SQL;
 
+        if ($path) {
+            $sql .= ' WHERE `path` LIKE ?';
+        }
+
         $query = $this->_em->createNativeQuery($sql, $rsm);
-        //$query->setParameters($conditions);
+        if (isset($path)) {
+            $query->setParameters([$path]);
+        }
+
         $result = $query->getResult();
 
         return $result;
-
     }
 }

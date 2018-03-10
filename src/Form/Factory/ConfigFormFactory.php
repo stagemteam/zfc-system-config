@@ -13,8 +13,18 @@
  * @license https://opensource.org/licenses/MIT The MIT License (MIT)
  */
 
-namespace Stagem\ZfcSystem\Config\Service;
+namespace Stagem\ZfcSystem\Config\Form\Factory;
 
-class ConfigService
+use Psr\Container\ContainerInterface;
+use Stagem\ZfcSystem\Config\Form\ConfigForm;
+
+class ConfigFormFactory
 {
+    public function __invoke(ContainerInterface $container, $name, array $options = null)
+    {
+        $form = new ConfigForm('system', $options);
+        $form->setSysConfig($container->get('config')['system']);
+
+        return $form;
+    }
 }

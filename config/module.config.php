@@ -3,9 +3,18 @@
 namespace Stagem\ZfcSystem\Config;
 
 return [
+    'system' => require 'system.config.php',
+
     'dependencies' => [
         'factories' => [
             SysConfig::class => Factory\SysConfigFactory::class,
+            //Service\SysConfigService::class => Factory\SysConfigFactory::class,
+        ],
+    ],
+
+    'form_elements' => [
+        'factories' => [
+            Form\ConfigForm::class => Form\Factory\ConfigFormFactory::class,
         ],
     ],
 
@@ -16,6 +25,13 @@ return [
         /*'invokables' => [
             View\Helper\SysConfigHelper::class => View\Helper\SysConfigHelper::class,
         ],*/
+    ],
+
+    // middleware
+    'templates' => [
+        'paths' => [
+            'admin-config'  => [__DIR__ . '/../view/admin/config'],
+        ],
     ],
 
     // Doctrine config
