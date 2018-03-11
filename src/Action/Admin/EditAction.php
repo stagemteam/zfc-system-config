@@ -70,7 +70,7 @@ class EditAction implements MiddlewareInterface, RequestMethodInterface
 
         //$form = $this->formManager->get(ConfigForm::class, $this->config['system']['section']['design']);
         /** @var ConfigForm $form */
-        $form = $this->formManager->get(ConfigForm::class, ['section' => $wildcard['section']]);
+        $form = $this->formManager->get(ConfigForm::class, ['scope' => 'default', 'section' => $wildcard['section']]);
 
         //$form->populateValues($sysConfig[$wildcard['section']]);
         $form->populateValues($sysConfig);
@@ -81,6 +81,7 @@ class EditAction implements MiddlewareInterface, RequestMethodInterface
             if ($form->isValid()) {
                 $data = $form->getData(FormInterface::VALUES_AS_ARRAY);
 
+                unset($data['submit']);
                 $this->sysConfigService->save($data);
                 //$om = $this->userService->getObjectManager();
                 //$om->persist($user);

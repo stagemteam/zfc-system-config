@@ -15,9 +15,10 @@
 
 namespace Stagem\ZfcSystem\Config\Service;
 
-use Popov\ZfcCore\Service\DomainServiceAbstract;
 use Stagem\ZfcSystem\Config\Model\Config;
 use Stagem\ZfcSystem\Config\Model\Repository\ConfigRepository;
+use Popov\ZfcCore\Service\DomainServiceAbstract;
+use Popov\Db\Db;
 
 /**
  * Class SysConfigService
@@ -27,6 +28,28 @@ use Stagem\ZfcSystem\Config\Model\Repository\ConfigRepository;
 class SysConfigService extends DomainServiceAbstract
 {
     protected $entity = Config::class;
+
+    /**
+     * @var Db
+     */
+    protected $db;
+
+    public function __construct(Db $db)
+    {
+        $this->db = $db;
+    }
+
+    public function getDb()
+    {
+        static $isConnected = false;
+        if (!$isConnected ) {
+            $this->db->setPdo($this->getObjectManager()->getConnection());
+            $isConnected = true;
+        }
+
+        return $this->db;
+    }
+
 
     public function getStructuredConfig($path)
     {
@@ -49,18 +72,26 @@ class SysConfigService extends DomainServiceAbstract
     public function save($data)
     {
         $em = $this->getObjectManager();
-        $connection = $em->getConnection()/*->exec($sql)*/;
+        //$connection = $em->getConnection()/*->exec($sql)*/;
         $tableName = $em->getClassMetadata($this->entity)->getTableName();
 
-        foreach ($data as $name => $config) {
 
+        $rows = [];
+        foreach ($data as $section => $groups) {
+            foreach ($groups as $groupName => $group) {
+                foreach ($group as $name => $option) {
+                    $option['path'] = sprintf('%s/%s/%s', $section, $groupName, $name);
+                    $rows[] = $option;
+                }
+            }
         }
 
-        $connection->insert($tableName, [
+        $this->getDb()->multipleSave($tableName, $rows);
+        /*$connection->insert($tableName, [
             'namespace' => 'Agere\\Payment\\Model\\Payment',
             'mnemo' => 'payment',
             'hidden' => 0,
             //'moduleId' => $paymentModule['id']
-        ]);
+        ]);*/
     }
 }

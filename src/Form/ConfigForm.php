@@ -47,6 +47,11 @@ class ConfigForm extends Form implements TranslatorAwareInterface
         return $groups;
     }
 
+    public function getScope()
+    {
+        return $this->getOptions()['scope'];
+    }
+
     public function init()
     {
         //$this->setName('config');
@@ -139,7 +144,11 @@ class ConfigForm extends Form implements TranslatorAwareInterface
             ]);
             $sub->add([
                 'name' => 'scope',
-                'type' => 'hidden'
+                'type' => 'hidden',
+                'attributes' => [
+                    // Set default scope value. If there is other value it will be override on populateValues()
+                    'value' => $this->getScope()
+                ]
             ]);
             $element = $sub->add([
                 'name' => 'value',
