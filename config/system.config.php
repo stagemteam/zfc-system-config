@@ -48,8 +48,8 @@ return [
     'tabs' => [
         'general' => [
             'label' => 'General',
-            'sort_order' => '10'
-        ]
+            'sort_order' => '10',
+        ],
     ],
     'section' => [
         'design' => [
@@ -57,6 +57,25 @@ return [
             'label' => 'Design',
             'sort_order' => '20',
             'groups' => [
+                'general' => [
+                    'label' => 'General Information',
+                    'sort_order' => '20',
+                    //'comment' => 'Settings which will be applied by default for <head> tag',
+                    'fields' => [
+                        'system_name' => [
+                            'label' => 'System Name',
+                            'sort_order' => '100',
+                            //'comment' => 'System name',
+                            'frontend_type' => 'text',
+                        ],
+                        'default_description' => [
+                            'label' => 'Default Description',
+                            'sort_order' => '90',
+                            'comment' => 'Default value for <meta> tag',
+                            'frontend_type' => 'text',
+                        ],
+                    ],
+                ],
                 'head' => [
                     'label' => 'HTML head',
                     'sort_order' => '10',
@@ -66,16 +85,17 @@ return [
                             'label' => 'Default Title',
                             'sort_order' => '100',
                             'comment' => 'Default value for <title> tag',
-                            'frontend_type' => 'text'
+                            'frontend_type' => 'text',
                         ],
                         'default_description' => [
                             'label' => 'Default Description',
                             'sort_order' => '90',
                             'comment' => 'Default value for <meta> tag',
-                            'frontend_type' => 'text'
-                        ]                    ]
+                            'frontend_type' => 'text',
+                        ],
+                    ],
                 ],
             ],
-        ]
-    ]
+        ],
+    ],
 ];
