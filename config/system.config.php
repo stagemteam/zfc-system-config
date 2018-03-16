@@ -59,7 +59,7 @@ return [
             'groups' => [
                 'general' => [
                     'label' => 'General Information',
-                    'sort_order' => '20',
+                    'sort_order' => '100',
                     //'comment' => 'Settings which will be applied by default for <head> tag',
                     'fields' => [
                         'system_name' => [
@@ -78,7 +78,7 @@ return [
                 ],
                 'head' => [
                     'label' => 'HTML head',
-                    'sort_order' => '10',
+                    'sort_order' => '90',
                     'comment' => 'Settings which will be applied by default for <head> tag',
                     'fields' => [
                         'default_title' => [
