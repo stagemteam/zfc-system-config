@@ -57,7 +57,8 @@ class EditAction implements MiddlewareInterface, RequestMethodInterface
         $route = $request->getAttribute(RouteResult::class);
 
         /** @var User $user */
-        $more = explode('/', $route->getMatchedParams()['more']);
+        //$more = explode('/', $route->getMatchedParams()['more']);
+        $more = $route->getMatchedParams()['more'];
         $wildcard = [];
         $count = count($more);
         for ($i = 0; $i < $count; $i = $i + 2) {
