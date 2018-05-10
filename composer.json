@@ -26,6 +26,7 @@
   },
   "extra": {
     "zf": {
+      "component": "Stagem\\ZfcSystem\\Config",
       "config-provider": "Stagem\\ZfcSystem\\Config\\ConfigProvider"
     }
   }
