@@ -68,12 +68,12 @@ return [
                             //'comment' => 'System name',
                             'frontend_type' => 'text',
                         ],
-                        'default_description' => [
+                        /*'default_description' => [
                             'label' => 'Default Description',
                             'sort_order' => '90',
                             'comment' => 'Default value for <meta> tag',
                             'frontend_type' => 'text',
-                        ],
+                        ],*/
                     ],
                 ],
                 'head' => [
