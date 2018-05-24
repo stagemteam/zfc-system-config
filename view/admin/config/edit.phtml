@@ -15,7 +15,7 @@
 /** @var \Stagem\ZfcSystem\Config\Form\ConfigForm $form */
 $form = $this->vars('form');
 $form->setAttribute('action', $this->url('admin/default', [
-    'resource' => $this->current('resource'),
+    'controller' => $this->current('controller'),
     'action' => $this->current('action'),
     'id' => 0,
     'more' => 'section/' . $form->getOptions()['section'],
