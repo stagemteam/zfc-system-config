@@ -25,7 +25,8 @@ class SysConfigFactory
     public function __invoke(ContainerInterface $container)
     {
         $repository = $container->get(EntityManager::class)->getRepository(Config::class);
-        $sysConfig = new SysConfig($repository);
+        $config = $container->get('config')['system']['default'];
+        $sysConfig = new SysConfig($repository, $config);
 
         return $sysConfig;
     }

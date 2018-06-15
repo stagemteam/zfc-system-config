@@ -13,6 +13,13 @@ The commented lines have not yet been implemented.
 ```php
 // src/Your/Module/config/module.config.php
 return [
+    'system' => require 'system.config.php',
+];
+```
+
+```php
+// src/Your/Module/config/system.config.php
+return [
     'tabs' => [
         'myconf' => [
             'label' => 'My Configuration',

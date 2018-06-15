@@ -15,7 +15,6 @@
 
 namespace Stagem\ZfcSystem\Config;
 
-//use Doctrine\ORM\NativeQuery;
 use Stagem\ZfcSystem\Config\Model\Repository\ConfigRepository;
 
 class SysConfig
@@ -25,13 +24,31 @@ class SysConfig
      */
     protected $configRepository;
 
+    /**
+     * Actual config
+     *
+     * @var array
+     */
     protected $config = [];
 
+    /**
+     * Default config
+     *
+     * @var array
+     */
+    protected $defaultConfig = [];
+
+    /**
+     * Is config normalized
+     *
+     * @var bool
+     */
     protected $isNormalized = false;
 
-    public function __construct(ConfigRepository $configRepository)
+    public function __construct(ConfigRepository $configRepository, array $defaultConfig = null)
     {
         $this->configRepository = $configRepository;
+        $this->defaultConfig = $defaultConfig;
     }
 
     public function fetchConfig()
@@ -45,20 +62,56 @@ class SysConfig
             return;
         }
 
+        // @todo-serhii It is not effictivly iterate config array on each request.
+        // Think about some cache optimization. Clear cache on change in Admin configuration
         $rows = $this->fetchConfig();
         foreach ($rows as $row) {
-            $this->config[$row['path']] = $row['value'];
+            list($section, $group, $field) = explode('/', $row['path']);
+            $this->config[$section][$group][$field] = $row['value'];
         }
 
         $this->isNormalized = true;
     }
 
+    /**
+     * @todo-serhii Add support for wildcard format such as section/group/*
+     * @param string $path Path in format section/group/value
+     * @return mixed|null
+     */
     public function getConfig(string $path)
     {
         if (!$this->isNormalized) {
             $this->normalize();
         }
 
-        return isset($this->config[$path]) ? $this->config[$path] : false;
+        //list($section, $group, $field) = explode('/', $path);
+        $paths = explode('/', $path);
+
+        //return $this->config[$section][$group][$field] ?? $this->defaultConfig[$section][$group][$field] ?? null;
+
+        return $this->getValue($paths, $this->config) ?: $this->getValue($paths, $this->defaultConfig);
+    }
+
+    public function getValue($paths, $config)
+    {
+        /*$key = current($paths);
+        if (isset($config[$key])) {
+            $value = $this->getValue(array_shift($paths));
+        } else {
+            $value = false;
+        }*/
+
+        $fetched = false;
+        foreach ($paths as $i => $path) {
+            if ($i == 0 && isset($config[$path])) {
+                $fetched = $config[$path];
+            } elseif (isset($fetched[$path])) {
+                $fetched = $fetched[$path];
+            } else {
+                return false;
+            }
+        }
+
+        return $fetched;
     }
 }

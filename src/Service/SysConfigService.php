@@ -50,7 +50,6 @@ class SysConfigService extends DomainServiceAbstract
         return $this->db;
     }
 
-
     public function getStructuredConfig($path)
     {
         $repository = $this->getRepository();
@@ -59,10 +58,6 @@ class SysConfigService extends DomainServiceAbstract
         $structure = [];
         foreach ($sysConfig as $config) {
             $parts = explode('/', $config['path']);
-            /*$structure[$parts[0]][$parts[1]][$parts[2] . '_id'] = $config['id'];
-            $structure[$parts[0]][$parts[1]][$parts[2] . '_scope'] = $config['scope'];
-            $structure[$parts[0]][$parts[1]][$parts[2]] = $config['value'];*/
-
             $structure[$parts[0]][$parts[1]][$parts[2]] = $config;
         }
 
@@ -87,11 +82,5 @@ class SysConfigService extends DomainServiceAbstract
         }
 
         $this->getDb()->multipleSave($tableName, $rows);
-        /*$connection->insert($tableName, [
-            'namespace' => 'Agere\\Payment\\Model\\Payment',
-            'mnemo' => 'payment',
-            'hidden' => 0,
-            //'moduleId' => $paymentModule['id']
-        ]);*/
     }
 }

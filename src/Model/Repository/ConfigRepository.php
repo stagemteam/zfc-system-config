@@ -31,12 +31,12 @@ class ConfigRepository extends EntityRepository
         $rsm = new ResultSetMappingBuilder($this->_em);
 
         $rsm->addScalarResult('id', 'id', 'integer'); // select name -> field name
-        $rsm->addScalarResult('scope', 'scope');
+        $rsm->addScalarResult('poolId', 'pool');
         $rsm->addScalarResult('path', 'path');
         $rsm->addScalarResult('value', 'value');
 
         $sql = <<<SQL
-SELECT {$this->alias}.`id`, {$this->alias}.`scope`, {$this->alias}.`path`, {$this->alias}.`value` FROM `{$this->table}` {$this->alias}
+SELECT {$this->alias}.`id`, {$this->alias}.`poolId`, {$this->alias}.`path`, {$this->alias}.`value` FROM `{$this->table}` {$this->alias}
 SQL;
 
         if ($path) {

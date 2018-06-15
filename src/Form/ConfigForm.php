@@ -47,9 +47,9 @@ class ConfigForm extends Form implements TranslatorAwareInterface
         return $groups;
     }
 
-    public function getScope()
+    public function getPool()
     {
-        return $this->getOptions()['scope'];
+        return $this->getOptions()['pool'];
     }
 
     public function init()
@@ -143,11 +143,11 @@ class ConfigForm extends Form implements TranslatorAwareInterface
                 'type' => 'hidden'
             ]);
             $sub->add([
-                'name' => 'scope',
+                'name' => 'pool',
                 'type' => 'hidden',
                 'attributes' => [
-                    // Set default scope value. If there is other value it will be override on populateValues()
-                    'value' => $this->getScope()
+                    // Set default pool value. If there is other value it will be override on populateValues()
+                    'value' => $this->getPool()
                 ]
             ]);
             $element = $sub->add([

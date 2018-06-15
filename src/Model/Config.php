@@ -5,7 +5,7 @@ namespace Stagem\ZfcSystem\Config\Model;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * This class create only for compatibility with migrations and doesn't use in real system.
+ * Note! This class create only for compatibility with migrations and doesn't use in real system.
  *
  * @ORM\Entity(repositoryClass="Stagem\ZfcSystem\Config\Model\Repository\ConfigRepository")
  * @ORM\Table(name="config_data")
@@ -19,13 +19,19 @@ class Config
      */
     private $id;
 
-    /** @ORM\Column(type="string", nullable=false, length=8, columnDefinition="VARCHAR(8) NOT NULL") */
-    private $scope;
+    /**
+     * @ORM\Column(type="integer", nullable=false)
+     */
+    private $poolId;
 
-    /** @ORM\Column(type="string", nullable=false) */
+    /**
+     * @ORM\Column(type="string", nullable=false)
+     */
     private $path;
 
-    /** @ORM\Column(type="text") */
+    /**
+     * @ORM\Column(type="text")
+     */
     private $value;
 
     /**
@@ -41,12 +47,12 @@ class Config
     /**
      * Set code
      *
-     * @param string $scope
+     * @param string $poolId
      * @return self
      */
-    public function setScope($scope)
+    public function setPoolId($poolId)
     {
-        $this->scope = $scope;
+        $this->poolId = $poolId;
 
         return $this;
     }
@@ -56,9 +62,9 @@ class Config
      *
      * @return string
      */
-    public function getScope()
+    public function getPoolId()
     {
-        return $this->scope;
+        return $this->poolId;
     }
 
     /**
