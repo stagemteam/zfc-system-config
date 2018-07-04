@@ -62,7 +62,7 @@ class SysConfig
             return;
         }
 
-        // @todo-serhii It is not effictivly iterate config array on each request.
+        // @todo-serhii It is not effectively iterate config array on each request.
         // Think about some cache optimization. Clear cache on change in Admin configuration
         $rows = $this->fetchConfig();
         foreach ($rows as $row) {
