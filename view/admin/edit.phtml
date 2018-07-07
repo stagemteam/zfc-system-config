@@ -14,17 +14,22 @@
  */
 /** @var \Stagem\ZfcSystem\Config\Form\ConfigForm $form */
 $form = $this->vars('form');
-$form->setAttribute('action', $this->url('admin/default', [
+/*$form->setAttribute('action', $this->url('admin/default', [
     'controller' => $this->current('controller'),
     'action' => $this->current('action'),
     'id' => 0,
     'more' => 'section/' . $form->getOptions()['section'],
-]));
+]));*/
+//$routeParams = $this->current('routeParams');
+$form->setAttribute('action', $this->url($this->current('routeName'), $this->current('routeParams')));
 
 #$form->setAttribute('class','form-horizontal');
 $form->prepare();
 ?>
 
+<?= $this->partial('form::form', ['form' => $form]) ?>
+
+<?php /*
 <div class="row">
     <div class="col-md-12">
         <!-- general form elements -->
@@ -34,11 +39,9 @@ $form->prepare();
                 <?= $this->form()->openTag($form) ?>
                 <?= $this->formCollection($form) ?>
 
-                <!--<div class="box-footer">
-                    <? /*= $this->formElement($form->get('submit'))*/ ?>
-				</div>-->
                 <?= $this->form()->closeTag() ?>
             </div>
         </div>
     </div>
 </div>
+*/ ?>

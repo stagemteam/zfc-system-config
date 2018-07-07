@@ -15,6 +15,9 @@
 
 namespace Stagem\ZfcSystem\Config\Form;
 
+use Stagem\ZfcSystem\Config\Service\SysConfigService;
+use Stagem\ZfcSystem\Config\SysConfig;
+use Zend\Form\Exception\InvalidArgumentException;
 use Zend\Form\Form;
 use Zend\Form\Fieldset;
 use Zend\I18n\Translator\TranslatorAwareInterface;
@@ -42,7 +45,13 @@ class ConfigForm extends Form implements TranslatorAwareInterface
 
     public function getConfigGroups()
     {
-        $groups = $this->sysConfig['section'][$this->getOptions()['section']]['groups'];
+        if (!isset($this->sysConfig['sections'][$this->getOptions()['section']]['groups'])) {
+            throw new InvalidArgumentException(sprintf(
+                'System configuration for "%s" not found. Check if you create relative config in your module',
+                $this->getOptions()['section']
+            ));
+        }
+        $groups = $this->sysConfig['sections'][$this->getOptions()['section']]['groups'];
 
         return $groups;
     }
@@ -85,9 +94,9 @@ class ConfigForm extends Form implements TranslatorAwareInterface
         $fieldset = $this->add([
             'name' => $this->getOptions()['section'],
             'type' => Fieldset::class,
-            //'label' => $group['label']
             'options' => [
                 'use_as_base_fieldset' => true,
+                'label' => ucfirst($this->getOptions()['section']),
             ],
         ])->get($this->getOptions()['section']);
 
@@ -133,9 +142,11 @@ class ConfigForm extends Form implements TranslatorAwareInterface
                 'name' => $name,
                 'type' => Fieldset::class,
                 //'label' => $group['label']
-                #'options' => [
-                #    'use_as_base_fieldset' => true,
-                #],
+                'options' => [
+                    #'use_as_base_fieldset' => true,
+                    #'label' => ucfirst($name)
+                    'inline' => true,
+                ],
             ], ['priority' => $field['sort_order'] ?? null])->get($name);
 
             $sub->add([
@@ -150,10 +161,27 @@ class ConfigForm extends Form implements TranslatorAwareInterface
                     'value' => $this->getPool()
                 ]
             ]);
+
             $element = $sub->add([
                 'name' => 'value',
                 'type' => $field['frontend_type'],
+                'options' => [
+                    //'label' => 'Use Default',
+                ],
             ])->get('value');
+
+            if (SysConfigService::POOL_DEFAULT !== $this->getPool()) {
+                $sub->add([
+                    'name' => 'inherit',
+                    'type' => 'checkbox',
+                    'options' => [
+                        'label' => 'Use Default',
+                    ],
+                ]);
+            }
+
+            $field['column'] = 6;
+
             $this->prepareConfig($element, $field);
         }
     }

@@ -19,6 +19,7 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\NativeQuery;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
+use Stagem\ZfcSystem\Config\Service\SysConfigService;
 
 class ConfigRepository extends EntityRepository
 {
@@ -26,7 +27,8 @@ class ConfigRepository extends EntityRepository
     protected $alias = 'config';
 
     //public function findConfig($filters = [])
-    public function findConfig($path = null)
+    //public function findConfig($path = null)
+    public function findConfig($pool, $path = null)
     {
         $rsm = new ResultSetMappingBuilder($this->_em);
 
@@ -34,19 +36,34 @@ class ConfigRepository extends EntityRepository
         $rsm->addScalarResult('poolId', 'pool');
         $rsm->addScalarResult('path', 'path');
         $rsm->addScalarResult('value', 'value');
+        $rsm->addScalarResult('inherit', 'inherit');
 
         $sql = <<<SQL
-SELECT {$this->alias}.`id`, {$this->alias}.`poolId`, {$this->alias}.`path`, {$this->alias}.`value` FROM `{$this->table}` {$this->alias}
+    SELECT 
+      {$this->alias}.`id`
+      , {$this->alias}.`poolId`
+      , {$this->alias}.`path`
+      , {$this->alias}.`value` 
+      , {$this->alias}.`inherit` 
+    FROM `{$this->table}` {$this->alias}
+    WHERE {$this->alias}.`poolId` IN(:defaultPool, :currentPool)
 SQL;
 
+        $params['defaultPool'] = SysConfigService::POOL_DEFAULT;
+        $params['currentPool'] = $pool->getId();
+
         if ($path) {
-            $sql .= ' WHERE `path` LIKE ?';
+            $sql .= ' AND `path` LIKE :path';
         }
 
         $query = $this->_em->createNativeQuery($sql, $rsm);
-        if (isset($path)) {
-            $query->setParameters([$path]);
+        if ($path) {
+            $params['path'] = $path;
+            //$query->setParameters([$path]);
         }
+
+        $query->setParameters($params);
+
 
         $result = $query->getResult();
 

@@ -6,7 +6,6 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Note! This class create only for compatibility with migrations and doesn't use in real system.
- *
  * @ORM\Entity(repositoryClass="Stagem\ZfcSystem\Config\Model\Repository\ConfigRepository")
  * @ORM\Table(name="config_data")
  */
@@ -33,6 +32,11 @@ class Config
      * @ORM\Column(type="text")
      */
     private $value;
+
+    /**
+     * @ORM\Column(type="integer", length=1)
+     */
+    private $inherit = 1;
 
     /**
      * Get id
@@ -111,5 +115,24 @@ class Config
     public function getValue()
     {
         return $this->value;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getInherit()
+    {
+        return $this->inherit;
+    }
+
+    /**
+     * @param mixed $inherit
+     * @return Config
+     */
+    public function setInherit($inherit)
+    {
+        $this->inherit = $inherit;
+
+        return $this;
     }
 }

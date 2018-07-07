@@ -15,14 +15,21 @@
 
 namespace Stagem\ZfcSystem\Config;
 
+use Stagem\ZfcPool\Model\PoolInterface;
 use Stagem\ZfcSystem\Config\Model\Repository\ConfigRepository;
+use Stagem\ZfcSystem\Config\Service\SysConfigService;
 
 class SysConfig
 {
     /**
-     * @var ConfigRepository
+     * @var SysConfigService
      */
-    protected $configRepository;
+    protected $sysConfigService;
+
+    /**
+     * @var PoolInterface
+     */
+    protected $currentPool;
 
     /**
      * Actual config
@@ -45,15 +52,28 @@ class SysConfig
      */
     protected $isNormalized = false;
 
-    public function __construct(ConfigRepository $configRepository, array $defaultConfig = null)
+    //public function __construct(ConfigRepository $configRepository, array $defaultConfig = null)
+    public function __construct(SysConfigService $sysConfigService, PoolInterface $currentPool, array $defaultConfig = null)
     {
-        $this->configRepository = $configRepository;
+        $this->sysConfigService = $sysConfigService;
+        $this->currentPool = $currentPool;
         $this->defaultConfig = $defaultConfig;
     }
 
-    public function fetchConfig()
+    public function getSysConfigService()
     {
-        return $this->configRepository->findConfig();
+        return $this->sysConfigService;
+    }
+
+    public function getCurrentPool()
+    {
+        return $this->currentPool;
+    }
+
+    public function fetchConfig(string $path = null)
+    {
+        //return $this->sysConfigService->getFlatConfig($this->getCurrentPool());
+        return $this->sysConfigService->getStructuredConfig($this->getCurrentPool(), $path);
     }
 
     public function normalize()
@@ -62,19 +82,20 @@ class SysConfig
             return;
         }
 
+        $this->config = $this->fetchConfig();
         // @todo-serhii It is not effectively iterate config array on each request.
         // Think about some cache optimization. Clear cache on change in Admin configuration
-        $rows = $this->fetchConfig();
+        /*$rows = $this->fetchConfig();
         foreach ($rows as $row) {
             list($section, $group, $field) = explode('/', $row['path']);
             $this->config[$section][$group][$field] = $row['value'];
-        }
+        }*/
 
         $this->isNormalized = true;
     }
 
     /**
-     * @todo-serhii Add support for wildcard format such as section/group/*
+     * @todo-serhii Add support for wildcard format such as $path "section/group/*"
      * @param string $path Path in format section/group/value
      * @return mixed|null
      */
@@ -89,7 +110,7 @@ class SysConfig
 
         //return $this->config[$section][$group][$field] ?? $this->defaultConfig[$section][$group][$field] ?? null;
 
-        return $this->getValue($paths, $this->config) ?: $this->getValue($paths, $this->defaultConfig);
+        return $this->getValue($paths, $this->config)/* ?: $this->getValue($paths, $this->defaultConfig)*/;
     }
 
     public function getValue($paths, $config)
@@ -105,6 +126,8 @@ class SysConfig
         foreach ($paths as $i => $path) {
             if ($i == 0 && isset($config[$path])) {
                 $fetched = $config[$path];
+            } elseif (isset($fetched[$path]['value'])) {
+                $fetched = $fetched[$path]['value'];
             } elseif (isset($fetched[$path])) {
                 $fetched = $fetched[$path];
             } else {

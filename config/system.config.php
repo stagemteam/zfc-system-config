@@ -51,7 +51,7 @@ return [
             'sort_order' => '10',
         ],
     ],
-    'section' => [
+    'sections' => [
         'design' => [
             'tab' => 'general',
             'label' => 'Design',

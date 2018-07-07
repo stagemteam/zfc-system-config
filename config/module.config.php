@@ -5,10 +5,14 @@ namespace Stagem\ZfcSystem\Config;
 return [
     'system' => require 'system.config.php',
 
+    'actions' => [
+        'sys-config' => __NAMESPACE__ . '\\Action',
+    ],
+
     'dependencies' => [
         'factories' => [
             SysConfig::class => Factory\SysConfigFactory::class,
-            //Service\SysConfigService::class => Factory\SysConfigFactory::class,
+            Service\SysConfigService::class => Service\Factory\SysConfigServiceFactory::class,
         ],
     ],
 
@@ -27,12 +31,19 @@ return [
         ],*/
     ],
 
+    // MVC
+    'view_manager' => [
+        'prefix_template_path_stack' => [
+            'sys-config::' => __DIR__ . '/../view',
+        ],
+    ],
+
     // middleware
-    'templates' => [
+    /*'templates' => [
         'paths' => [
             'admin-config'  => [__DIR__ . '/../view/admin/config'],
         ],
-    ],
+    ],*/
 
     // Doctrine config
     'doctrine' => [

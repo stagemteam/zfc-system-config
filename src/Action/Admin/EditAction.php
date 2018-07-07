@@ -15,25 +15,35 @@
 
 namespace Stagem\ZfcSystem\Config\Action\Admin;
 
-use Popov\ZfcForm\FormElementManager;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Http\Server\MiddlewareInterface;
+#use Psr\Http\Server\MiddlewareInterface;
+#use Psr\Http\Server\RequestHandlerInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Interop\Http\Server\RequestHandlerInterface;
 use Fig\Http\Message\RequestMethodInterface;
+
+use Popov\ZfcForm\FormElementManager;
+use Stagem\ZfcPool\PoolHelper;
 use Stagem\ZfcSystem\Config\Form\ConfigForm;
 use Stagem\ZfcSystem\Config\Model\Config;
 use Stagem\ZfcSystem\Config\Service\SysConfigService;
-use Zend\Expressive\Router\RouteResult;
+//use Zend\Expressive\Router\RouteResult;
+use Stagem\ZfcSystem\Config\SysConfig;
+use Zend\Router\RouteMatch;
 use Zend\Form\FormInterface;
+use Zend\Stdlib\Exception\InvalidArgumentException;
 use Zend\View\Model\ViewModel;
 
+/**
+ * @method PoolHelper pool()
+ */
 class EditAction implements MiddlewareInterface, RequestMethodInterface
 {
     /**
-     * @var SysConfigService
+     * @var SysConfig
      */
-    protected $sysConfigService;
+    protected $sysConfig;
 
     /**
      * @var ConfigForm
@@ -44,9 +54,9 @@ class EditAction implements MiddlewareInterface, RequestMethodInterface
 
     protected $config;
 
-    public function __construct(SysConfigService $sysConfigService, FormElementManager $formManager, ConfigForm $configForm, array $config)
+    public function __construct(SysConfig $sysConfig, FormElementManager $formManager, ConfigForm $configForm, array $config)
     {
-        $this->sysConfigService = $sysConfigService;
+        $this->sysConfig = $sysConfig;
         $this->formManager = $formManager;
         $this->configForm = $configForm;
         $this->config = $config;
@@ -54,25 +64,37 @@ class EditAction implements MiddlewareInterface, RequestMethodInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $route = $request->getAttribute(RouteResult::class);
+        // /admin/config/edit/0/section/design
+
+        $route = $request->getAttribute(RouteMatch::class);
 
         /** @var User $user */
         //$more = explode('/', $route->getMatchedParams()['more']);
-        $more = $route->getMatchedParams()['more'];
+        /*$more = $route->getMatchedParams()['more'];
         $wildcard = [];
         $count = count($more);
         for ($i = 0; $i < $count; $i = $i + 2) {
             $wildcard[$more[$i]] = $more[$i + 1];
-        }
+        }*/
 
+        // If "section" key work is not preset than should be taken first default
+        #if (!isset($route->getMatchedParams()['section'])) {
+        #    throw new InvalidArgumentException('Key word "section" must be preset in route.');
+        #}
 
         //$repository = $this->sysConfigService->getRepository();
-        $sysConfig = $this->sysConfigService->getStructuredConfig($wildcard['section'] . '/%');
+        //$sysConfig = $this->sysConfig->getStructuredConfig($this->pool()->current(), $route->getParam('section'));
+        $sysConfigService = $this->sysConfig->getSysConfigService();
+        $sysConfig = $this->sysConfig->fetchConfig($route->getParam('section'));
 
         //$form = $this->formManager->get(ConfigForm::class, $this->config['system']['section']['design']);
         /** @var ConfigForm $form */
         //$form = $this->formManager->get(ConfigForm::class, ['pool' => 'default', 'section' => $wildcard['section']]);
-        $form = $this->formManager->get(ConfigForm::class, ['pool' => '0', 'section' => $wildcard['section']]);
+        $form = $this->formManager->get(ConfigForm::class, [
+            //'pool' => '0',
+            'pool' => $route->getParam('pool', SysConfigService::POOL_DEFAULT),
+            'section' => $route->getParam('section')
+        ]);
 
         //$form->populateValues($sysConfig[$wildcard['section']]);
         $form->populateValues($sysConfig);
@@ -84,7 +106,7 @@ class EditAction implements MiddlewareInterface, RequestMethodInterface
                 $data = $form->getData(FormInterface::VALUES_AS_ARRAY);
 
                 unset($data['submit']);
-                $this->sysConfigService->save($data);
+                $sysConfigService->save($data);
                 //$om = $this->userService->getObjectManager();
                 //$om->persist($user);
                 //$om->flush();

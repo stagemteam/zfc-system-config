@@ -17,16 +17,22 @@ namespace Stagem\ZfcSystem\Config\Factory;
 
 use Psr\Container\ContainerInterface;
 use Doctrine\ORM\EntityManager;
+use Stagem\ZfcPool\PoolHelper;
+use Stagem\ZfcPool\Service\PoolService;
 use Stagem\ZfcSystem\Config\Model\Config;
+use Stagem\ZfcSystem\Config\Service\SysConfigService;
 use Stagem\ZfcSystem\Config\SysConfig;
 
 class SysConfigFactory
 {
     public function __invoke(ContainerInterface $container)
     {
-        $repository = $container->get(EntityManager::class)->getRepository(Config::class);
+        //$repository = $container->get(EntityManager::class)->getRepository(Config::class);
+        $repository = $container->get(SysConfigService::class);
         $config = $container->get('config')['system']['default'];
-        $sysConfig = new SysConfig($repository, $config);
+        $currentPool = $container->get(PoolHelper::class)->current();
+
+        $sysConfig = new SysConfig($repository, $currentPool, $config);
 
         return $sysConfig;
     }

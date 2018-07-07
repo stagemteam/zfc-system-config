@@ -15,6 +15,7 @@
 
 namespace Stagem\ZfcSystem\Config\Service;
 
+use Stagem\ZfcPool\Model\PoolInterface;
 use Stagem\ZfcSystem\Config\Model\Config;
 use Stagem\ZfcSystem\Config\Model\Repository\ConfigRepository;
 use Popov\ZfcCore\Service\DomainServiceAbstract;
@@ -27,6 +28,8 @@ use Popov\Db\Db;
  */
 class SysConfigService extends DomainServiceAbstract
 {
+    const POOL_DEFAULT = 0;
+
     protected $entity = Config::class;
 
     /**
@@ -34,23 +37,44 @@ class SysConfigService extends DomainServiceAbstract
      */
     protected $db;
 
-    public function __construct(Db $db)
+    /**
+     * @var PoolInterface
+     */
+    //protected $currentPool;
+
+    //protected $defaultConfig;
+
+    protected $systemConfig;
+
+    protected $flatConfig = [];
+
+    protected $structuredConfig = [];
+
+    public function __construct(/*PoolInterface $currentPool,*/ Db $db, array $config)
     {
         $this->db = $db;
+        //$this->currentPool = $currentPool;
+        //$this->defaultConfig = $config['system']['default'];
+        $this->systemConfig = $config['system'];
     }
 
     public function getDb()
     {
-        static $isConnected = false;
-        if (!$isConnected ) {
-            $this->db->setPdo($this->getObjectManager()->getConnection());
-            $isConnected = true;
-        }
+        #static $isConnected = false;
+        #if (!$isConnected ) {
+        #    $this->db->setPdo($this->getObjectManager()->getConnection());
+        #    $isConnected = true;
+        #}
 
         return $this->db;
     }
 
-    public function getStructuredConfig($path)
+    /*public function getCurrentPool()
+    {
+        return $this->currentPool;
+    }*/
+
+    /*public function getStructuredConfig($path)
     {
         $repository = $this->getRepository();
         $sysConfig = $repository->findConfig($path);
@@ -62,6 +86,85 @@ class SysConfigService extends DomainServiceAbstract
         }
 
         return $structure;
+    }*/
+
+    /*public function getFlatConfig($pool, $sectionName = null)
+    {
+        $this->getStructuredConfig($pool, $sectionName);
+
+        return $this->flatConfig;
+    }*/
+
+    public function getStructuredConfig($pool /*= null*/, $sectionName = null)
+    {
+        if (isset($this->structuredConfig[$pool->getId()])) {
+            $structured = $this->structuredConfig[$pool->getId()];
+            if (isset($structured[$sectionName])) {
+                $structured = $structured[$sectionName];
+            }
+
+            return $structured;
+        }
+
+        #if (is_null($pool)) {
+        #    $pool = $this->getCurrentPool();
+        #}
+        $repository = $this->getRepository();
+        #$sysConfigs = $repository->findConfig($pool, $sectionName ? $sectionName . '/%' : '');
+        $sysConfigs = $repository->findConfig($pool/*, $sectionName ? $sectionName . '/%' : ''*/);
+
+        $defaultConfig = $this->systemConfig['default'];
+
+        $structured = [];
+        foreach ($sysConfigs as $config) {
+            list($section, $group, $field) = explode('/', $config['path']);
+            //$parts = explode('/', $config['path']);
+
+            if (isset($structured[$section][$group][$field])
+                && $structured[$section][$group][$field]['inherit']
+                && ($config['pool'] == self::POOL_DEFAULT)
+            ) {
+                // It allow catch situation when specific "pool" value was set before iterate through default "pool".
+                // If set "inherit" override with value from default database config
+                $config['pool'] = $structured[$section][$group][$field]['pool'];
+                //$config['pool'] = $structure[$section][$group][$field]['pool'];
+                //$structure[$section][$group][$field]['value'] = $config['value'];
+
+            } elseif ($config['inherit'] && isset($defaultConfig[$section][$group][$field])) {
+                // Default database row cannot be inherit=1, it always must be inherit=0.
+                // Based on this we take as granted that row in database always is inherit=0.
+                // If default value is already in database it cannot be override with default value from config.
+                $config['value'] = $defaultConfig[$section][$group][$field];
+            }
+
+            $structured[$section][$group][$field] = $config;
+            #$this->flatConfig[$section . '/' . $group . '/' . $field] = $config['value'];
+
+            // unset default config such as we already has it in DB
+            unset($defaultConfig[$section][$group][$field]);
+        }
+
+        // Add default value from file if relative has not registered in database
+        foreach ($defaultConfig as $name => $sectionConfig) {
+            if ($sectionName && $sectionName !== $name) {
+                continue;
+            }
+            foreach ($sectionConfig as $groupName => $fieldConfig) {
+                foreach ($fieldConfig as $fieldName => $fieldValue) {
+                    //list($section, $group, $field) = explode('/', $config['path']);
+                    $structured[$name][$groupName][$fieldName] = [
+                        'path' => $name . '/' . $groupName . '/' . $fieldName,
+                        'value' => $fieldValue,
+                        'poolId' => self::POOL_DEFAULT,
+                        'inherit' => false,
+                    ];
+
+                    #$this->flatConfig[$name . '/' . $groupName . '/' . $fieldName] = $fieldValue;
+                }
+            }
+        }
+
+        return $this->structuredConfig[$pool->getId()] = $structured;
     }
 
     public function save($data)
