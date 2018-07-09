@@ -70,10 +70,14 @@ class SysConfig
         return $this->currentPool;
     }
 
-    public function fetchConfig(string $path = null)
+    public function fetchConfig(string $path = null, PoolInterface $pool = null)
     {
+        if (!$pool) {
+            $pool = $this->getCurrentPool();
+        }
+
         //return $this->sysConfigService->getFlatConfig($this->getCurrentPool());
-        return $this->sysConfigService->getStructuredConfig($this->getCurrentPool(), $path);
+        return $this->sysConfigService->getStructuredConfig($pool, $path);
     }
 
     public function normalize()

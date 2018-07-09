@@ -47,59 +47,63 @@ use Zend\View\Model\ViewModel;
 class EditAction implements MiddlewareInterface, RequestMethodInterface
 {
     /**
+     * @var Config
+     */
+    protected $config;
+
+    /**
      * @var SysConfig
      */
     protected $sysConfig;
+
+    /**
+     * @var PoolHelper
+     */
+    protected $poolHelper;
 
     /**
      * @var ConfigForm
      */
     protected $configForm;
 
+    /**
+     * @var FormElementManager
+     */
     protected $formManager;
 
-    /**
-     * @var Config
-     */
-    protected $config;
-
     public function __construct(
-        Config $config,
+        //Config $config,
         SysConfig $sysConfig,
-        FormElementManager $formManager,
-        ConfigForm $configForm
+        ConfigForm $configForm,
+        PoolHelper $poolHelper,
+        FormElementManager $formManager
     )
     {
-        $this->config = $config;
+        //$this->config = $config;
         $this->sysConfig = $sysConfig;
-        $this->formManager = $formManager;
         $this->configForm = $configForm;
+        $this->poolHelper = $poolHelper;
+        $this->formManager = $formManager;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         // /admin/config/edit/0/section/design
 
+        /** @var RouteMatch $route */
         $route = $request->getAttribute(RouteMatch::class);
 
-        /** @var User $user */
-        //$more = explode('/', $route->getMatchedParams()['more']);
-        /*$more = $route->getMatchedParams()['more'];
-        $wildcard = [];
-        $count = count($more);
-        for ($i = 0; $i < $count; $i = $i + 2) {
-            $wildcard[$more[$i]] = $more[$i + 1];
-        }*/
+        //$route->getParam($this->config->get('pool/general/url_parameter'), PoolService::POOL_ADMIN);
+        $pool = $this->poolHelper->findFromRoute();
+        $this->poolHelper->setCurrent($pool);
 
-        // If "section" key work is not preset than should be taken first default
-        #if (!isset($route->getMatchedParams()['section'])) {
-        #    throw new InvalidArgumentException('Key word "section" must be preset in route.');
-        #}
 
         //$repository = $this->sysConfigService->getRepository();
         //$sysConfig = $this->sysConfig->getStructuredConfig($this->pool()->current(), $route->getParam('section'));
         $sysConfigService = $this->sysConfig->getSysConfigService();
-        $sysConfig = $this->sysConfig->fetchConfig($route->getParam('section'));
+        $sysConfig = $this->sysConfig->fetchConfig($route->getParam('section', SysConfigService::SECTION_DEFAULT), $pool);
+
+
 
 
         //$form = $this->formManager->get(ConfigForm::class, $this->config['system']['section']['design']);
@@ -109,7 +113,8 @@ class EditAction implements MiddlewareInterface, RequestMethodInterface
             //'pool' => '0',
             // @todo Якщо виникне необхідність замість poolId використовувати code, тоді тут реалізувати перевірку,
             // @todo якщо число int, тоді нічого не змінювати, якщо стрічка, тоді діставати Pool і вже з нього id.
-            'pool' => $route->getParam($this->config->get('pool/general/url_parameter'), PoolService::POOL_ADMIN),
+            //'pool' => $route->getParam($this->config->get('pool/general/url_parameter'), PoolService::POOL_ADMIN),
+            'pool' => $pool->getId(),
             'section' => $route->getParam('section', SysConfigService::SECTION_DEFAULT)
         ]);
 

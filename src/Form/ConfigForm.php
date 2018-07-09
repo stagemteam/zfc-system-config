@@ -178,10 +178,11 @@ class ConfigForm extends Form implements TranslatorAwareInterface
                     'options' => [
                         'label' => 'Use Default',
                     ],
-                    //'attributes' => [
+                    'attributes' => [
                         //'class' => 'form-control'
                         //'checked' => true
-                    //],
+                        'value' => 1 // set by default all inherit
+                    ],
                 ]);
             }
 

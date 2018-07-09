@@ -113,6 +113,15 @@ class SysConfigService extends DomainServiceAbstract
                 // Based on this we take as granted that row in database always is inherit=0.
                 // If default value is already in database it cannot be override with default value from config.
                 $config['value'] = $defaultConfig[$section][$group][$field];
+
+            } elseif ($config['inherit'] && isset($structured[$section][$group][$field])) {
+                // It allow catch situation when "default pool" value was set first but "real pool" has inherit=1
+                $config['value'] = $structured[$section][$group][$field]['value'];
+
+            } elseif (($config['pool'] == PoolService::POOL_ADMIN) && ($pool->getId() != PoolService::POOL_ADMIN)) {
+                $config['id'] = '';
+                $config['inherit'] = 1;
+                //$config['pool'] = $pool->getId();
             }
 
             $structured[$section][$group][$field] = $config;
