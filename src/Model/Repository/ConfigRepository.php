@@ -19,6 +19,7 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\NativeQuery;
 use Doctrine\ORM\Query\ResultSetMappingBuilder;
+use Stagem\ZfcPool\Service\PoolService;
 use Stagem\ZfcSystem\Config\Service\SysConfigService;
 
 class ConfigRepository extends EntityRepository
@@ -49,7 +50,7 @@ class ConfigRepository extends EntityRepository
     WHERE {$this->alias}.`poolId` IN(:defaultPool, :currentPool)
 SQL;
 
-        $params['defaultPool'] = SysConfigService::POOL_DEFAULT;
+        $params['defaultPool'] = PoolService::POOL_ADMIN;
         $params['currentPool'] = $pool->getId();
 
         if ($path) {

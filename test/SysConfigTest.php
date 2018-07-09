@@ -36,7 +36,7 @@ class SysConfigTest extends MockeryTestCase
             ['id' => 2, 'scope' => 'default', 'path' => 'default/banner/active', 'value' => '1'],
         ]);
 
-        $value = $this->sysConfig->getConfig('default/head/title');
+        $value = $this->sysConfig->get('default/head/title');
         $this->assertEquals('Test Title', $value);
     }
 

@@ -52,12 +52,12 @@ return [
         ],
     ],
     'sections' => [
-        'design' => [
+        'general' => [
             'tab' => 'general',
-            'label' => 'Design',
+            'label' => 'Info',
             'sort_order' => '20',
             'groups' => [
-                'general' => [
+                'info' => [
                     'label' => 'General Information',
                     'sort_order' => '100',
                     //'comment' => 'Settings which will be applied by default for <head> tag',

@@ -23,19 +23,25 @@ use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Interop\Http\Server\RequestHandlerInterface;
 use Fig\Http\Message\RequestMethodInterface;
 
+use Popov\ZfcCore\Helper\Config;
 use Popov\ZfcForm\FormElementManager;
 use Stagem\ZfcPool\PoolHelper;
+use Stagem\ZfcPool\Service\PoolService;
 use Stagem\ZfcSystem\Config\Form\ConfigForm;
-use Stagem\ZfcSystem\Config\Model\Config;
 use Stagem\ZfcSystem\Config\Service\SysConfigService;
 //use Zend\Expressive\Router\RouteResult;
 use Stagem\ZfcSystem\Config\SysConfig;
+use Zend\Diactoros\Response\HtmlResponse;
+use Zend\Diactoros\Response\RedirectResponse;
 use Zend\Router\RouteMatch;
 use Zend\Form\FormInterface;
 use Zend\Stdlib\Exception\InvalidArgumentException;
 use Zend\View\Model\ViewModel;
 
 /**
+ * Edit action depends on pool parameter is passed in Url.
+ * It doesn't considerate Pool saved to session.
+ *
  * @method PoolHelper pool()
  */
 class EditAction implements MiddlewareInterface, RequestMethodInterface
@@ -52,14 +58,22 @@ class EditAction implements MiddlewareInterface, RequestMethodInterface
 
     protected $formManager;
 
+    /**
+     * @var Config
+     */
     protected $config;
 
-    public function __construct(SysConfig $sysConfig, FormElementManager $formManager, ConfigForm $configForm, array $config)
+    public function __construct(
+        Config $config,
+        SysConfig $sysConfig,
+        FormElementManager $formManager,
+        ConfigForm $configForm
+    )
     {
+        $this->config = $config;
         $this->sysConfig = $sysConfig;
         $this->formManager = $formManager;
         $this->configForm = $configForm;
-        $this->config = $config;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -87,13 +101,16 @@ class EditAction implements MiddlewareInterface, RequestMethodInterface
         $sysConfigService = $this->sysConfig->getSysConfigService();
         $sysConfig = $this->sysConfig->fetchConfig($route->getParam('section'));
 
+
         //$form = $this->formManager->get(ConfigForm::class, $this->config['system']['section']['design']);
         /** @var ConfigForm $form */
         //$form = $this->formManager->get(ConfigForm::class, ['pool' => 'default', 'section' => $wildcard['section']]);
         $form = $this->formManager->get(ConfigForm::class, [
             //'pool' => '0',
-            'pool' => $route->getParam('pool', SysConfigService::POOL_DEFAULT),
-            'section' => $route->getParam('section')
+            // @todo Якщо виникне необхідність замість poolId використовувати code, тоді тут реалізувати перевірку,
+            // @todo якщо число int, тоді нічого не змінювати, якщо стрічка, тоді діставати Pool і вже з нього id.
+            'pool' => $route->getParam($this->config->get('pool/general/url_parameter'), PoolService::POOL_ADMIN),
+            'section' => $route->getParam('section', SysConfigService::SECTION_DEFAULT)
         ]);
 
         //$form->populateValues($sysConfig[$wildcard['section']]);
@@ -110,6 +127,7 @@ class EditAction implements MiddlewareInterface, RequestMethodInterface
                 //$om = $this->userService->getObjectManager();
                 //$om->persist($user);
                 //$om->flush();
+                return new RedirectResponse($request->getUri()->getPath());
             }
         }
 

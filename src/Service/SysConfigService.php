@@ -16,6 +16,7 @@
 namespace Stagem\ZfcSystem\Config\Service;
 
 use Stagem\ZfcPool\Model\PoolInterface;
+use Stagem\ZfcPool\Service\PoolService;
 use Stagem\ZfcSystem\Config\Model\Config;
 use Stagem\ZfcSystem\Config\Model\Repository\ConfigRepository;
 use Popov\ZfcCore\Service\DomainServiceAbstract;
@@ -28,7 +29,7 @@ use Popov\Db\Db;
  */
 class SysConfigService extends DomainServiceAbstract
 {
-    const POOL_DEFAULT = 0;
+    const SECTION_DEFAULT = 'general';
 
     protected $entity = Config::class;
 
@@ -50,11 +51,9 @@ class SysConfigService extends DomainServiceAbstract
 
     protected $structuredConfig = [];
 
-    public function __construct(/*PoolInterface $currentPool,*/ Db $db, array $config)
+    public function __construct(Db $db, array $config)
     {
         $this->db = $db;
-        //$this->currentPool = $currentPool;
-        //$this->defaultConfig = $config['system']['default'];
         $this->systemConfig = $config['system'];
     }
 
@@ -69,31 +68,10 @@ class SysConfigService extends DomainServiceAbstract
         return $this->db;
     }
 
-    /*public function getCurrentPool()
+    public function getSystemConfig()
     {
-        return $this->currentPool;
-    }*/
-
-    /*public function getStructuredConfig($path)
-    {
-        $repository = $this->getRepository();
-        $sysConfig = $repository->findConfig($path);
-
-        $structure = [];
-        foreach ($sysConfig as $config) {
-            $parts = explode('/', $config['path']);
-            $structure[$parts[0]][$parts[1]][$parts[2]] = $config;
-        }
-
-        return $structure;
-    }*/
-
-    /*public function getFlatConfig($pool, $sectionName = null)
-    {
-        $this->getStructuredConfig($pool, $sectionName);
-
-        return $this->flatConfig;
-    }*/
+        return $this->systemConfig;
+    }
 
     public function getStructuredConfig($pool /*= null*/, $sectionName = null)
     {
@@ -122,7 +100,7 @@ class SysConfigService extends DomainServiceAbstract
 
             if (isset($structured[$section][$group][$field])
                 && $structured[$section][$group][$field]['inherit']
-                && ($config['pool'] == self::POOL_DEFAULT)
+                && ($config['pool'] == PoolService::POOL_ADMIN)
             ) {
                 // It allow catch situation when specific "pool" value was set before iterate through default "pool".
                 // If set "inherit" override with value from default database config
@@ -155,8 +133,9 @@ class SysConfigService extends DomainServiceAbstract
                     $structured[$name][$groupName][$fieldName] = [
                         'path' => $name . '/' . $groupName . '/' . $fieldName,
                         'value' => $fieldValue,
-                        'poolId' => self::POOL_DEFAULT,
-                        'inherit' => false,
+                        //'poolId' => PoolService::POOL_ADMIN,
+                        'poolId' => $pool->getId(),
+                        'inherit' => ($pool->getId() == PoolService::POOL_ADMIN) ? false : true,
                     ];
 
                     #$this->flatConfig[$name . '/' . $groupName . '/' . $fieldName] = $fieldValue;

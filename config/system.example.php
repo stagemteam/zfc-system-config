@@ -21,7 +21,7 @@ return [
         ],
     ],
     'sections' => [
-        'tab1' => [ // in most cases you shoult use module name in lowercase but it isn't required
+        'tab1' => [ // in most cases you should use module name in lowercase but it isn't required
             'label' => 'Tab #1',
             'tab' => 'myconf',
             'sort_order' => '10',

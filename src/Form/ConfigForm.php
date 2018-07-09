@@ -15,6 +15,7 @@
 
 namespace Stagem\ZfcSystem\Config\Form;
 
+use Stagem\ZfcPool\Service\PoolService;
 use Stagem\ZfcSystem\Config\Service\SysConfigService;
 use Stagem\ZfcSystem\Config\SysConfig;
 use Zend\Form\Exception\InvalidArgumentException;
@@ -154,7 +155,7 @@ class ConfigForm extends Form implements TranslatorAwareInterface
                 'type' => 'hidden'
             ]);
             $sub->add([
-                'name' => 'pool',
+                'name' => 'poolId',
                 'type' => 'hidden',
                 'attributes' => [
                     // Set default pool value. If there is other value it will be override on populateValues()
@@ -170,13 +171,17 @@ class ConfigForm extends Form implements TranslatorAwareInterface
                 ],
             ])->get('value');
 
-            if (SysConfigService::POOL_DEFAULT !== $this->getPool()) {
+            if (PoolService::POOL_ADMIN !== $this->getPool()) {
                 $sub->add([
                     'name' => 'inherit',
                     'type' => 'checkbox',
                     'options' => [
                         'label' => 'Use Default',
                     ],
+                    //'attributes' => [
+                        //'class' => 'form-control'
+                        //'checked' => true
+                    //],
                 ]);
             }
 

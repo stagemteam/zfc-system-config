@@ -3,6 +3,9 @@
 namespace Stagem\ZfcSystem\Config;
 
 return [
+
+    'assetic_configuration' => require_once 'assets.config.php',
+
     'system' => require 'system.config.php',
 
     'actions' => [

@@ -86,11 +86,11 @@ class Module
                 'layout::admin' => __DIR__ . '/../view/layout/admin.phtml',*/
 
         if ('sys-config' === $currentHelper->currentController()) {
-            $config = $container->get('config');
-            $config['view_manager']['template_map']['widget::menu'] = __DIR__ . '/../view/admin/widget/left-menu.phtml';
-            $container->setAllowOverride(true);
-            $container->setService('config', $config);
-            $container->setAllowOverride(false);
+            #$config = $container->get('config');
+            #$config['view_manager']['template_map']['widget::menu'] = __DIR__ . '/../view/admin/widget/left-menu.phtml';
+            #$container->setAllowOverride(true);
+            #$container->setService('config', $config);
+            #$container->setAllowOverride(false);
 
             $mapResolver = $container->get('ViewTemplateMapResolver');
             $mapResolver->add('widget::menu', __DIR__ . '/../view/admin/widget/left-menu.phtml');

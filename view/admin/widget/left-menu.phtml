@@ -14,6 +14,21 @@
  */
 ?>
 
+<?php /*
+
+<div class="menu-left-drop-down">
+    <?//= $this->partial('pool::widget/switcher', ['includeDefault' => true]) ?>
+
+	<ul class="level-0">
+		<li>
+			<a href="#"><?= $this->translate('Configuration') ?></a>
+		</li>
+	</ul>
+
+	<?= $this->sysConfig()->render() ?>
+</div>
+*/?>
+
 <div class="menu-left-drop-down">
 	<ul class="level-0">
 		<li>
@@ -25,6 +40,7 @@
 		<li><a href="/users/monitoring">Мониторинг пользователей</a></li>
 		<li><a href="/spare/index">ВиражЗапчасти</a></li>
 		<li><a href="/discount/index">Программа лояльности</a></li>
+
 		<li><a href="#" class="active-a">Настройки системы</a><span class="figure arrow-up"></span>
 			<ul class="level-2 active-ul">
 				<li><a href="/mail/index">Письма</a></li>
@@ -35,6 +51,8 @@
 				<li><a href="/status/index">Статусы</a></li>
 			</ul>
 		</li>
+
+
 		<li><a href="#" class="active-a">Автомобили</a><span class="figure arrow-up"></span>
 			<ul class="level-2 active-ul">
 				<li><a href="/brand/index">Марки машин</a></li>

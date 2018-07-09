@@ -95,11 +95,10 @@ class SysConfig
     }
 
     /**
-     * @todo-serhii Add support for wildcard format such as $path "section/group/*"
      * @param string $path Path in format section/group/value
      * @return mixed|null
      */
-    public function getConfig(string $path)
+    public function get(string $path)
     {
         if (!$this->isNormalized) {
             $this->normalize();
