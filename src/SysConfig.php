@@ -80,13 +80,17 @@ class SysConfig
         return $this->sysConfigService->getStructuredConfig($pool, $path);
     }
 
-    public function normalize()
+    /**
+     * @param PoolInterface|null $pool
+     * @deprecated
+     */
+    public function normalize(PoolInterface $pool = null)
     {
         if ($this->isNormalized) {
             return;
         }
 
-        $this->config = $this->fetchConfig();
+        $this->config = $this->fetchConfig($pool);
         // @todo-serhii It is not effectively iterate config array on each request.
         // Think about some cache optimization. Clear cache on change in Admin configuration
         /*$rows = $this->fetchConfig();
@@ -100,13 +104,12 @@ class SysConfig
 
     /**
      * @param string $path Path in format section/group/value
+     * @param PoolInterface $pool
      * @return mixed|null
      */
-    public function get(string $path)
+    public function get(string $path, PoolInterface $pool = null)
     {
-        if (!$this->isNormalized) {
-            $this->normalize();
-        }
+        $this->config = $this->fetchConfig($path, $pool);
 
         //list($section, $group, $field) = explode('/', $path);
         $paths = explode('/', $path);

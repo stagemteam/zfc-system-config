@@ -133,9 +133,9 @@ class SysConfigService extends DomainServiceAbstract
 
         // Add default value from file if relative has not registered in database
         foreach ($defaultConfig as $name => $sectionConfig) {
-            if ($sectionName && $sectionName !== $name) {
-                continue;
-            }
+            //if ($sectionName && $sectionName !== $name) {
+            //    continue;
+            //}
             foreach ($sectionConfig as $groupName => $fieldConfig) {
                 foreach ($fieldConfig as $fieldName => $fieldValue) {
                     //list($section, $group, $field) = explode('/', $config['path']);
@@ -152,7 +152,9 @@ class SysConfigService extends DomainServiceAbstract
             }
         }
 
-        return $this->structuredConfig[$pool->getId()] = $structured;
+        $this->structuredConfig[$pool->getId()] = $structured;
+
+        return $structured[$sectionName] ?? $structured;
     }
 
     public function save($data)
