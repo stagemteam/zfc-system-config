@@ -8,6 +8,8 @@ return [
 
     'system' => require 'system.config.php',
 
+    'navigation' => require 'navigation.config.php',
+
     'actions' => [
         'sys-config' => __NAMESPACE__ . '\\Action',
     ],

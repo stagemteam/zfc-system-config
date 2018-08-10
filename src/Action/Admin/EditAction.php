@@ -100,8 +100,9 @@ class EditAction implements MiddlewareInterface, RequestMethodInterface
 
         //$repository = $this->sysConfigService->getRepository();
         //$sysConfig = $this->sysConfig->getStructuredConfig($this->pool()->current(), $route->getParam('section'));
+        $section = $route->getParam('section', SysConfigService::SECTION_DEFAULT);
         $sysConfigService = $this->sysConfig->getSysConfigService();
-        $sysConfig = $this->sysConfig->fetchConfig($route->getParam('section', SysConfigService::SECTION_DEFAULT), $pool);
+        $sysConfig = $this->sysConfig->fetchConfig($section, $pool);
 
 
 
@@ -115,11 +116,11 @@ class EditAction implements MiddlewareInterface, RequestMethodInterface
             // @todo якщо число int, тоді нічого не змінювати, якщо стрічка, тоді діставати Pool і вже з нього id.
             //'pool' => $route->getParam($this->config->get('pool/general/url_parameter'), PoolService::POOL_ADMIN),
             'pool' => $pool->getId(),
-            'section' => $route->getParam('section', SysConfigService::SECTION_DEFAULT)
+            'section' => $section
         ]);
 
         //$form->populateValues($sysConfig[$wildcard['section']]);
-        $form->populateValues($sysConfig);
+        $form->populateValues([$section => $sysConfig]);
 
         if ($request->getMethod() == self::METHOD_POST) {
             $params = $request->getParsedBody();

@@ -93,20 +93,21 @@ class SysConfigService extends DomainServiceAbstract
 
         $defaultConfig = $this->systemConfig['default'];
 
+        $temp = [];
         $structured = [];
         foreach ($sysConfigs as $config) {
             list($section, $group, $field) = explode('/', $config['path']);
             //$parts = explode('/', $config['path']);
 
-            if (isset($structured[$section][$group][$field])
-                && $structured[$section][$group][$field]['inherit']
+            if (isset($temp[$section][$group][$field])
+                && $temp[$section][$group][$field]['inherit']
                 && ($config['pool'] == PoolService::POOL_ADMIN)
             ) {
                 // It allow catch situation when specific "pool" value was set before iterate through default "pool".
                 // If set "inherit" override with value from default database config
-                $config['pool'] = $structured[$section][$group][$field]['pool'];
-                //$config['pool'] = $structure[$section][$group][$field]['pool'];
-                //$structure[$section][$group][$field]['value'] = $config['value'];
+                $config['pool'] = $temp[$section][$group][$field]['pool'];
+                //$config['pool'] = $temp[$section][$group][$field]['pool'];
+                //$temp[$section][$group][$field]['value'] = $config['value'];
 
             } elseif ($config['inherit'] && isset($defaultConfig[$section][$group][$field])) {
                 // Default database row cannot be inherit=1, it always must be inherit=0.
@@ -114,9 +115,9 @@ class SysConfigService extends DomainServiceAbstract
                 // If default value is already in database it cannot be override with default value from config.
                 $config['value'] = $defaultConfig[$section][$group][$field];
 
-            } elseif ($config['inherit'] && isset($structured[$section][$group][$field])) {
+            } elseif ($config['inherit'] && isset($temp[$section][$group][$field])) {
                 // It allow catch situation when "default pool" value was set first but "real pool" has inherit=1
-                $config['value'] = $structured[$section][$group][$field]['value'];
+                $config['value'] = $temp[$section][$group][$field]['value'];
 
             } elseif (($config['pool'] == PoolService::POOL_ADMIN) && ($pool->getId() != PoolService::POOL_ADMIN)) {
                 $config['id'] = '';
@@ -124,6 +125,8 @@ class SysConfigService extends DomainServiceAbstract
                 //$config['pool'] = $pool->getId();
             }
 
+            // Use $temp for have access to all Pool data.
+            $temp[$section][$group][$field] = $config;
             $structured[$section][$group][$field] = $config;
             #$this->flatConfig[$section . '/' . $group . '/' . $field] = $config['value'];
 
@@ -133,25 +136,17 @@ class SysConfigService extends DomainServiceAbstract
 
         // Add default value from file if relative has not registered in database
         foreach ($defaultConfig as $name => $sectionConfig) {
-            //if ($sectionName && $sectionName !== $name) {
-            //    continue;
-            //}
             foreach ($sectionConfig as $groupName => $fieldConfig) {
                 foreach ($fieldConfig as $fieldName => $fieldValue) {
-                    //list($section, $group, $field) = explode('/', $config['path']);
                     $structured[$name][$groupName][$fieldName] = [
                         'path' => $name . '/' . $groupName . '/' . $fieldName,
                         'value' => $fieldValue,
-                        //'poolId' => PoolService::POOL_ADMIN,
                         'poolId' => $pool->getId(),
                         'inherit' => ($pool->getId() == PoolService::POOL_ADMIN) ? false : true,
                     ];
-
-                    #$this->flatConfig[$name . '/' . $groupName . '/' . $fieldName] = $fieldValue;
                 }
             }
         }
-
         $this->structuredConfig[$pool->getId()] = $structured;
 
         return $structured[$sectionName] ?? $structured;

@@ -11,6 +11,10 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Config
 {
+    const MNEMO = 'sysConfig';
+
+    const TABLE = 'config_data';
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="AUTO")

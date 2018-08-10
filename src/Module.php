@@ -93,7 +93,7 @@ class Module
             #$container->setAllowOverride(false);
 
             $mapResolver = $container->get('ViewTemplateMapResolver');
-            $mapResolver->add('widget::menu', __DIR__ . '/../view/admin/widget/left-menu.phtml');
+            $mapResolver->add('admin::widget/menu', __DIR__ . '/../view/admin/widget/left-menu.phtml');
         }
 
     }
