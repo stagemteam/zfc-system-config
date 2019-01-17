@@ -45,6 +45,9 @@ return [
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </text_field>*/
+
+    'default' => require 'system.default.config.php',
+
     'tabs' => [
         'general' => [
             'label' => 'General',
